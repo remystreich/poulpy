@@ -16,31 +16,31 @@ class UserLoginController extends AbstractController{
         private readonly EntityManagerInterface $em
     ){}
 
-    public function __invoke(Request $request,JWTTokenManagerInterface $JWTTokenManager, UserRepository $userRepository): JsonResponse
+
+    public function __invoke(Request $request, JWTTokenManagerInterface $JWTTokenManager, UserRepository $userRepository): JsonResponse
     {
-
         $client = HttpClient::create();
+        $body = json_decode($request->getContent(), true);
+        $response = $client->request('GET', 'http://localhost:3005/me?code='.$body['token']);
 
-
-        $body= json_decode($request->getContent());
-        $discordData = $client->request('GET', 'http://localhost:3005/me?code='.$body->token);
-
-
-
-        if (!$discordData->discordId){
-            return 'Utilisateur non autorisé';
+        if ($response->getStatusCode() !== 200) {
+            return new JsonResponse(['error' => 'Invalid response'], 400);
         }
 
-        else {
-            $discordId = $discordData->discordId;
+        $discordData = json_decode($response->getContent());
+
+        if (!isset($discordData->userId)) {
+            return new JsonResponse(['error' => 'Utilisateur non autorisé'], 401);
+        }
+            $discordId = $discordData->userId;
             $user = $userRepository->findOneBy(['discordId'=>$discordId]);
 
             if (!$user) {
                 $user = new User();
-                $user->setRoles([]);
+                $user->setRoles($discordData->roles);
                 $user->setDiscordId($discordId);
-                $user->setName($discordData->displayName);
                 $user->setGuildId($discordData->guildId);
+                $user->setName($discordData->displayName);
                 $user->setCreatedAt(new \DateTimeImmutable());
 
                 $this->em->persist($user);
@@ -48,7 +48,7 @@ class UserLoginController extends AbstractController{
             }
 
             $token = $JWTTokenManager->create($user);
-            return new JsonResponse(['token' => $token]);
+            return new JsonResponse(['token' => $discordData]);
         }
-    }
+
 }
