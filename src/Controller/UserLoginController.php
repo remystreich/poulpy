@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
@@ -30,7 +31,7 @@ class UserLoginController extends AbstractController{
         $discordData = json_decode($response->getContent());
 
         if (!isset($discordData->userId)) {
-            return new JsonResponse(['error' => 'Utilisateur non autorisé'], 401);
+            return new JsonResponse(['error' => 'Utilisateur non autorisé'], Response::HTTP_UNAUTHORIZED);
         }
             $discordId = $discordData->userId;
             $user = $userRepository->findOneBy(['discordId'=>$discordId]);
@@ -48,7 +49,7 @@ class UserLoginController extends AbstractController{
             }
 
             $token = $JWTTokenManager->create($user);
-            return new JsonResponse(['token' => $discordData]);
+            return new JsonResponse(['token' => $token],Response::HTTP_CREATED);
         }
 
 }

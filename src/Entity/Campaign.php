@@ -3,15 +3,25 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\MyCampaignsController;
+use App\Controller\NewCampaignController;
 use App\Repository\CampaignRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+#[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: CampaignRepository::class)]
 #[ApiResource(
     operations: [
@@ -20,10 +30,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
             controller: MyCampaignsController::class,
             name: 'myCampaigns',
         ),
+        new Get(),
+        new Post(
+            uriTemplate: '/campaigns',
+            controller: NewCampaignController::class,
+            openapi: new Operation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'file' => [
+                                        'type' => 'string',
+                                        'format' => 'binary'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ])
+                )
+            ),
+            deserialize: false,
+            name: 'newCampaign'
+        ),
+        new Put(),
+        new Delete()
     ]
 )]
 class Campaign
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -47,7 +84,17 @@ class Campaign
     #[ORM\Column(options: ['default'=> "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
+    #[Vich\UploadableField(mapping: 'campaigns', fileNameProperty: 'imageName', size: 'imageSize')]
+    public ?File $imageFile = null;
+
+    #[ORM\Column(nullable: true)]
+    public ?string $imageName = null;
+
+    #[ORM\Column(nullable: true)]
+    public ?int $imageSize = null;
 
     #[ORM\OneToMany(mappedBy: 'Campaign', targetEntity: Application::class, orphanRemoval: true)]
     private Collection $applications;
@@ -55,6 +102,8 @@ class Campaign
     #[ORM\ManyToOne(inversedBy: 'campaigns')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
+
+
 
     public function __construct()
     {
@@ -138,6 +187,18 @@ class Campaign
         return $this;
     }
 
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, Application>
@@ -180,4 +241,42 @@ class Campaign
 
         return $this;
     }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageSize(?int $imageSize): void
+    {
+        $this->imageSize = $imageSize;
+    }
+
+    public function getImageSize(): ?int
+    {
+        return $this->imageSize;
+    }
+
 }

@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Post;
 use App\Controller\MyCampaignsController;
 use App\Controller\UserLoginController;
 use App\Repository\UserRepository;
+use ContainerXZo9Dby\getUserLoginControllerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,6 +23,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
             controller: UserLoginController::class,
             name: 'login',
         ),
+        new Get(
+            uriTemplate: '/test',
+            controller: UserLoginController::class,
+            name:'ntm',
+        )
     ],
     normalizationContext: ['groups' => ['read:parties']]
 )]
