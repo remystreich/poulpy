@@ -3,18 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use App\Controller\MyCampaignsController;
 use App\Controller\UserLoginController;
 use App\Repository\UserRepository;
-use ContainerXZo9Dby\getUserLoginControllerService;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     operations: [
@@ -32,6 +30,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['read:applications'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, nullable:true)]
@@ -51,15 +50,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $applications;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:applications'])]
+    #[Assert\NoSuspiciousCharacters]
     private ?string $discordId = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:applications'])]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9-_]+$/',
+        message: 'Votre nom contient un ou plusieurs caractères invalides',
+        match: false,
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:applications'])]
+    #[Assert\NoSuspiciousCharacters]
     private ?string $guildId = null;
 
     #[ORM\Column(options: ['default'=> "CURRENT_TIMESTAMP"])]
+    #[Assert\DateTime]
     private ?\DateTimeImmutable $created_at = null;
 
     public function __construct()

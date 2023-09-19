@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -87,30 +87,56 @@ class Campaign
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['read:applications'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:applications'])]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9-_]+$/',
+        message: 'Votre nom contient un ou plusieurs caractères invalides',
+        match: false,
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NoSuspiciousCharacters]
+    #[Groups(['read:applications'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\Date]
+    #[Groups(['read:applications'])]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column]
+    #[Groups(['read:applications'])]
+    #[Assert\Type(
+        type:'integer',
+        message: 'The value {{ value }} is not a valid {{ type }}.'
+    )]
     private ?int $playersNumber = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:applications'])]
+    #[Assert\Regex(
+        pattern: '/^[012]+$/',
+        message: 'Caractère invalide',
+        match: false,
+    )]
     private ?string $status = null;
 
     #[ORM\Column(options: ['default'=> "CURRENT_TIMESTAMP"])]
+    #[Assert\Date]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Date]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[Vich\UploadableField(mapping: 'campaigns', fileNameProperty: 'imageName', size: 'imageSize')]
+    #[Groups(['read:applications'])]
+    #[Assert\File]
     public ?File $imageFile = null;
 
     #[ORM\Column(nullable: true)]
