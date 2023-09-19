@@ -1,20 +1,49 @@
-Routes
 
-User
-
-Login: POST  /api/login
+# Routes
 
 
-Campagnes
+## User
+#### Login
 
-Créer : POST  /api/campaigns
+```http
+  POST /api/login
+```
 
-Modifier: POST /api/updateCampaign/{id}
 
-Effacer:DELETE  /api/campaigns/{id}
+## Campagnes
 
-Récupérer une campagne: GET /api/campaigns/{id}
+#### Get all items
 
-Récupérer toutes campagnes:GET /api/campaigns
+```http
+  GET /api/campaigns
+```
 
-Récupérer les campagnes d’un utilisateur: GET /api/my-campaigns
+
+#### Get item
+
+```http
+  GET /api/campaigns/${id}
+```
+
+#### Get all items belongs to one user
+
+```http
+  GET /api/my-campaigns
+```
+
+#### Create
+
+```http
+  POST /api/campaigns
+```
+#### Update
+
+```http
+  POST /api/updateCampaign/${id}
+```
+
+#### Delete
+
+```http
+  POST /api/campaigns/${id}
+```
