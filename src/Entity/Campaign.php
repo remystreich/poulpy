@@ -7,11 +7,11 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\MyCampaignsController;
 use App\Controller\NewCampaignController;
+use App\Controller\PutCampaignController;
 use App\Repository\CampaignRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -54,7 +54,29 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             deserialize: false,
             name: 'newCampaign'
         ),
-        new Put(),
+        new Post(
+            uriTemplate: '/updateCampaign/{id}',
+            controller: PutCampaignController::class,
+            openapi: new Operation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'file' => [
+                                        'type' => 'string',
+                                        'format' => 'binary'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ])
+                )
+            ),
+            deserialize: false,
+            name: 'putCampaign'
+        ),
         new Delete()
     ]
 )]
