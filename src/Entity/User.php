@@ -23,11 +23,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
             controller: UserLoginController::class,
             name: 'login',
         ),
-        new Get(
-            uriTemplate: '/test',
-            controller: UserLoginController::class,
-            name:'ntm',
-        )
     ],
     normalizationContext: ['groups' => ['read:parties']]
 )]

@@ -31,6 +31,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             name: 'myCampaigns',
         ),
         new Get(),
+        new GetCollection(),
         new Post(
             uriTemplate: '/campaigns',
             controller: NewCampaignController::class,
