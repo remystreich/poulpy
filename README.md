@@ -8,6 +8,29 @@
 ```http
   POST /api/login
 ```
+## Candidatures
+
+#### Get all applications
+```http
+  GET /api/applications
+```
+
+#### Get one application
+```http
+  GET /api/applications/${id}
+```
+#### Apply
+```http
+  POST /api/apply/${campaign_id}
+```
+#### Delete application
+```http
+  DELETE /api/applications/${id}
+```
+#### Update application
+```http
+  PUT /api/updateApplication/${id}
+```
 
 
 ## Campagnes
