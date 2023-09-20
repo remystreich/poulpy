@@ -8,7 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\NewApplicationController;
+use App\Controller\ApplyController;
+use App\Controller\UpdateApplicationController;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\ApplicationRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,15 +19,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Post(
-            uriTemplate: '/newApplication',
-            controller: NewApplicationController::class,
+            uriTemplate: '/apply/{campaign_id}',
+            controller: ApplyController::class,
             name: 'newApplication',
         ),
-        new Put(),
-        new Delete(),
-        new GetCollection(
-
+        new Put(
+            uriTemplate: '/updateApplication/{id}',
+            controller: UpdateApplicationController::class,
+            name: 'updateApplication'
         ),
+        new Delete(),
+        new GetCollection(),
         new Get()
     ],
     normalizationContext: ['groups' => ['read:applications']]

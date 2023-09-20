@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class NewApplicationController extends AbstractController{
+class ApplyController extends AbstractController{
 
     public function __construct(
         private readonly EntityManagerInterface $em
@@ -20,11 +20,10 @@ class NewApplicationController extends AbstractController{
     /**
      * @throws Exception
      */
-    public function __invoke(Request $request, UserRepository $userRepository, CampaignRepository $campaignRepository): JsonResponse{
+    public function __invoke(Request $request, int $campaign_id, UserRepository $userRepository, CampaignRepository $campaignRepository): JsonResponse{
         $body= json_decode($request->getContent());
-        $campaign= $campaignRepository->find($body->campaignId);
-        $user = $userRepository->find($body->userId);
-
+        $campaign= $campaignRepository->find($campaign_id);
+        $user= $this->getUser();
         $application = new Application();
         $application->setStatus($body->status);
         $application->setCampaign($campaign);
